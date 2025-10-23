@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ApiKeySetup from './components/ApiKeySetup';
 import MainPanel from './components/MainPanel';
+import './styles.css';
 
 export default function IndexSidePanel() {
   const [hasApiKey, setHasApiKey] = useState(false);
