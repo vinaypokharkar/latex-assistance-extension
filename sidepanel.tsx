@@ -1,29 +1,42 @@
-import { useState } from "react"
+import { useState, useEffect } from 'react';
+import ApiKeySetup from './components/ApiKeySetup';
+import MainPanel from './components/MainPanel';
 
-function IndexSidePanel() {
-  const [data, setData] = useState("")
+export default function IndexSidePanel() {
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  // Check for existing API key on mount
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['geminiApiKey'], (result) => {
+        if (result.geminiApiKey) {
+          setHasApiKey(true);
+        }
+      });
+    }
+  }, []);
+
+  const handleApiKeySuccess = () => {
+    setHasApiKey(true);
+  };
+
+  const handleSignOut = () => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.remove(['geminiApiKey'], () => {
+        setHasApiKey(false);
+      });
+    } else {
+      setHasApiKey(false);
+    }
+  };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        padding: 16
-      }}>
-      <h2>
-        Welcome to your
-        <a href="https://www.plasmo.com" target="_blank">
-          {" "}
-          Plasmo
-        </a>{" "}
-        Extension!
-      </h2>
-      <input onChange={(e) => setData(e.target.value)} value={data} />
-      <a href="https://docs.plasmo.com" target="_blank">
-        View Docs
-      </a>
+    <div className="min-h-screen bg-gray-50">
+      {hasApiKey ? (
+        <MainPanel onSignOut={handleSignOut} />
+      ) : (
+        <ApiKeySetup onSuccess={handleApiKeySuccess} />
+      )}
     </div>
-  )
+  );
 }
-
-export default IndexSidePanel
